@@ -4,5 +4,5 @@ all:: parser
 clean:
 	gnatclean parser
 
-parser: parser.adb
+parser: parser.adb tls.ads tls.adb
 	gnatmake $@
