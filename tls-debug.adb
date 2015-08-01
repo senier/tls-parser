@@ -10,7 +10,24 @@ package body TLS.Debug is
         Ada.Text_IO.Put (V'Img(2..V'Img'Last));
     end Dump;
 
-    procedure Dump (O : Opaque)
+    procedure Dump (O : Opaque8)
+    is
+        Buffer : String (1..6);
+    begin
+        for Element of O
+        loop
+            IIO.Put (To => Buffer, Item => Element, Base => 16);
+            if Element > 16#F#
+            then
+                Ada.Text_IO.Put (Buffer (4..5));
+            else
+                Ada.Text_IO.Put ("0");
+                Ada.Text_IO.Put (Buffer (5..5));
+            end if;
+        end loop;
+    end Dump;
+
+    procedure Dump (O : Opaque16)
     is
         Buffer : String (1..6);
     begin
@@ -31,6 +48,15 @@ package body TLS.Debug is
     is
     begin
         Dump (V.Data);
+    end Dump;
+
+    procedure Dump (V : CipherSuites)
+    is
+    begin
+        for Element of V.cs_data
+        loop
+            Ada.Text_IO.Put (Element'Img);
+        end loop;
     end Dump;
 
     procedure Dump (Data : TLSPlaintext)
@@ -67,6 +93,12 @@ package body TLS.Debug is
                         Ada.Text_IO.Put_Line (TLS.uint32'Image(Data.ct_handshake.ht_client_hello.ch_random.gmt_unix_time));
 	                    Ada.Text_IO.Put      ("         Random Bytes: ");
                         Dump (Data.ct_handshake.ht_client_hello.ch_random.random_bytes);
+	                    Ada.Text_IO.New_Line;
+	                    Ada.Text_IO.Put      ("      Session ID: ");
+                        Dump (Data.ct_handshake.ht_client_hello.ch_session_id);
+	                    Ada.Text_IO.New_Line;
+	                    Ada.Text_IO.Put      ("      Ciphers: ");
+                        Dump (Data.ct_handshake.ht_client_hello.ch_cipher_suites);
 	                    Ada.Text_IO.New_Line;
 
                     when others => null;

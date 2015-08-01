@@ -32,11 +32,12 @@ is
          Item   : out uint32);
     for uint32'Read use Read_UInt32;
 
-    type Opaque is array (uint16 range <>) of uint8;
+    type Opaque8  is array (uint16 range <>) of uint8;
+    type Opaque16 is array (uint16 range <>) of uint8;
 
     type Vector16 (length : uint16 := 0) is
     record
-        data   : Opaque (1..length);
+        data   : Opaque16 (1..length);
     end record;
 
     for Vector16 use
@@ -44,7 +45,13 @@ is
         length at 0 range 0..15;
     end record;
 
-    type ContentType is (ct_change_cipher_spec, ct_alert, ct_handshake, ct_application_data, ct_invalid);
+    type ContentType is
+        (ct_change_cipher_spec,
+         ct_alert,
+         ct_handshake,
+         ct_application_data,
+         ct_invalid);
+
     for ContentType use
         (ct_change_cipher_spec =>  20,
          ct_alert              =>  21,
@@ -72,10 +79,26 @@ is
     --  Client Hello  --
     --------------------
 
+    type CipherSuite is
+        (CS_Invalid);
+
+    for CipherSuite use
+        (CS_Invalid => 255);
+    for CipherSuite'Size use 8;
+
+    type CipherList is array (uint8 range <>) of CipherSuite;
+
+    -- FIXME: Check whether length of 0 really leads to an empty list
+
+    type CipherSuites (length : uint8 := 0) is
+    record
+        cs_data : CipherList (0..length);
+    end record;
+
     type Random is
     record
         gmt_unix_time : uint32;
-        random_bytes  : Opaque (1..28);
+        random_bytes  : Opaque8 (1..28);
     end record;
 
     type ClientHello
@@ -84,6 +107,7 @@ is
         ch_client_version    : ProtocolVersion;
         ch_random            : Random;
         ch_session_id        : Vector16;
+        ch_cipher_suites     : CipherSuites;
     end record;
 
     --------------------------
@@ -142,9 +166,13 @@ is
         length   at 1 range 0 .. 23;
     end record;
 
-    -------------------
-    -- TLS Plaintext --
-    -------------------
+    -------------------------
+    --  Change Cipher Spec --
+    -------------------------
+
+    --------------------
+    --  TLS Plaintext --
+    --------------------
 
     type TLSPlaintext
         (ctype  : ContentType := ct_invalid)
@@ -154,9 +182,9 @@ is
         length  : uint16;
         case ctype is
             when ct_invalid            => null;
-            when ct_change_cipher_spec => null;
+            when ct_change_cipher_spec => null; --ct_change_cipher_spec : ChangeCipherSpec;
             when ct_alert              => null;
-            when ct_handshake          => ct_handshake : Handshake;
+            when ct_handshake          => ct_handshake          : Handshake;
             when ct_application_data   => null;
         end case;
     end record;
