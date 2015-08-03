@@ -1,3 +1,5 @@
+DUMMY := $(shell grep --exclude-dir .git --color --recursive --line-number 'FIXME' . | grep -v DUMMY 1>&2)
+
 all:: parser
 
 parser: *.ad?
