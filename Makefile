@@ -1,13 +1,17 @@
 all:: parser
 
-parser: parser.adb tls.ad? tls-debug.ad? tls_parameters.ads
+parser: *.ad?
 	gnatmake $@
 
-tls_parameters.ads: tls-parameters.xml
+tls-parameters.ads: tls-parameters.xml
 
 tls-parameters.xml:
 	#FIXME: Pin server certificate
 	curl --silent --ssl-reqd -o $@ https://www.iana.org/assignments/tls-parameters/tls-parameters.xml
+
+tls-parameters.ads: scripts/parameters.xsl tls-parameters.xml
+	xsltproc -o $@ $^
+
 
 clean:
 	@gnatclean parser
