@@ -1,16 +1,21 @@
 with Ada.Text_IO;
 
-package body TLS.Debug is
+with TLS.Types;
+with TLS.Messages;
 
-    package IIO is new Ada.Text_IO.Integer_IO (uint8);
+use type TLS.Types.uint8;
 
-    procedure Dump (V : uint8)
+package body TLS.Messages.Debug is
+
+    package IIO is new Ada.Text_IO.Integer_IO (TLS.Types.uint8);
+
+    procedure Dump (V : TLS.Types.uint8)
     is
     begin
         Ada.Text_IO.Put (V'Img(2..V'Img'Last));
     end Dump;
 
-    procedure Dump (O : Opaque8)
+    procedure Dump (O : TLS.Types.Opaque8)
     is
         Buffer : String (1..6);
     begin
@@ -27,7 +32,7 @@ package body TLS.Debug is
         end loop;
     end Dump;
 
-    procedure Dump (O : Opaque16)
+    procedure Dump (O : TLS.Types.Opaque16)
     is
         Buffer : String (1..6);
     begin
@@ -44,18 +49,19 @@ package body TLS.Debug is
         end loop;
     end Dump;
 
-    procedure Dump (V : Vector16)
+    procedure Dump (V : TLS.Types.Vector16)
     is
     begin
         Dump (V.Data);
     end Dump;
 
-    procedure Dump (V : CipherSuites)
+    procedure Dump (V : TLS.Messages.CipherSuites)
     is
     begin
         for Element of V.cs_data
         loop
-            Ada.Text_IO.Put (Element'Img);
+            Ada.Text_IO.Put ("         ");
+            Ada.Text_IO.Put_Line (Element'Img);
         end loop;
     end Dump;
 
@@ -69,19 +75,19 @@ package body TLS.Debug is
 	    Ada.Text_IO.New_Line;
 
 	    Ada.Text_IO.Put ("Length");
-	    Ada.Text_IO.Put_Line (TLS.uint16'Image(Data.length));
+	    Ada.Text_IO.Put_Line (TLS.Types.uint16'Image(Data.length));
 
 	    Ada.Text_IO.Put ("Type ");
-        Ada.Text_IO.Put_Line (TLS.ContentType'Image(Data.ctype));
+        Ada.Text_IO.Put_Line (TLS.Messages.ContentType'Image(Data.ctype));
 
         case  Data.ctype is
-            when TLS.ct_handshake =>
+            when TLS.Messages.ct_handshake =>
 	            Ada.Text_IO.Put ("   Handshake Type ");
-                Ada.Text_IO.Put_Line (TLS.HandshakeType'Image(Data.ct_handshake.msg_type));
+                Ada.Text_IO.Put_Line (TLS.Messages.HandshakeType'Image(Data.ct_handshake.msg_type));
 	            Ada.Text_IO.Put ("   Handshake Length");
-                Ada.Text_IO.Put_Line (TLS.uint24'Image(Data.ct_handshake.length));
+                Ada.Text_IO.Put_Line (TLS.Types.uint24'Image(Data.ct_handshake.length));
                 case Data.ct_handshake.msg_type is
-                    when TLS.ht_client_hello =>
+                    when TLS.Messages.ht_client_hello =>
 	                    Ada.Text_IO.Put ("      Client Version ");
                         Dump (Data.ct_handshake.ht_client_hello.ch_client_version.major);
 	                    Ada.Text_IO.Put (".");
@@ -90,7 +96,7 @@ package body TLS.Debug is
 
 	                    Ada.Text_IO.Put_Line ("      Random");
 	                    Ada.Text_IO.Put      ("         UNIX time: ");
-                        Ada.Text_IO.Put_Line (TLS.uint32'Image(Data.ct_handshake.ht_client_hello.ch_random.gmt_unix_time));
+                        Ada.Text_IO.Put_Line (TLS.Types.uint32'Image(Data.ct_handshake.ht_client_hello.ch_random.gmt_unix_time));
 	                    Ada.Text_IO.Put      ("         Random Bytes: ");
                         Dump (Data.ct_handshake.ht_client_hello.ch_random.random_bytes);
 	                    Ada.Text_IO.New_Line;
@@ -108,4 +114,4 @@ package body TLS.Debug is
         end case;
     end Dump;
 
-end TLS.Debug;
+end TLS.Messages.Debug;

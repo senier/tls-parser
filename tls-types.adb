@@ -1,6 +1,4 @@
-with Ada.Text_IO;
-
-package body TLS
+package body TLS.Types
 is
     procedure Read_UInt16
         (Stream : not null access Ada.Streams.Root_Stream_Type'Class;
@@ -38,4 +36,4 @@ is
         Item := uint32 (v1) * 2**24 + uint32 (v2) * 2**16 + uint32 (v3) * 2**8 + uint32 (v4);
     end Read_UInt32;
 
-end TLS;
+end TLS.Types;
