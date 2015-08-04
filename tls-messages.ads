@@ -60,6 +60,25 @@ is
         cs_data : CipherList (1..length);
     end record;
 
+    type CompressionMethod is (CM_NULL, CM_DEFLATE, CM_INVALID);
+    for CompressionMethod use
+       (CM_NULL    =>   0,
+        CM_DEFLATE =>   1,
+        CM_INVALID => 255);
+    for CompressionMethod'Size use 8;
+
+    procedure Read_CompressionMethod
+        (Stream : not null access Ada.Streams.Root_Stream_Type'Class;
+         Item   : out CompressionMethod);
+    for CompressionMethod'Read use Read_CompressionMethod;
+
+    type CompressionList is array (TLS.Types.uint8 range <>) of CompressionMethod;
+
+    type CompressionMethods (length : TLS.Types.uint8 := 0) is
+    record
+        cm_data : CompressionList (1..length);
+    end record;
+
     for CipherSuites use
     record
         length at 0 range 0 .. 7;
@@ -74,10 +93,11 @@ is
     type ClientHello
     is
     record
-        ch_client_version    : ProtocolVersion;
-        ch_random            : Random;
-        ch_session_id        : TLS.Types.Vector16;
-        ch_cipher_suites     : CipherSuites;
+        ch_client_version      : ProtocolVersion;
+        ch_random              : Random;
+        ch_session_id          : TLS.Types.Vector16;
+        ch_cipher_suites       : CipherSuites;
+        ch_compression_methods : CompressionMethods;
     end record;
 
     --------------------------

@@ -65,6 +65,16 @@ package body TLS.Messages.Debug is
         end loop;
     end Dump;
 
+    procedure Dump (V : TLS.Messages.CompressionMethods)
+    is
+    begin
+        for Element of V.cm_data
+        loop
+            Ada.Text_IO.Put ("         ");
+            Ada.Text_IO.Put_Line (Element'Img);
+        end loop;
+    end Dump;
+
     procedure Dump (Data : TLSPlaintext)
     is
     begin
@@ -105,6 +115,9 @@ package body TLS.Messages.Debug is
 	                    Ada.Text_IO.New_Line;
 	                    Ada.Text_IO.Put_Line ("      Ciphers: ");
                         Dump (Data.ct_handshake.ht_client_hello.ch_cipher_suites);
+	                    Ada.Text_IO.New_Line;
+	                    Ada.Text_IO.Put_Line ("      Compression: ");
+                        Dump (Data.ct_handshake.ht_client_hello.ch_compression_methods);
 	                    Ada.Text_IO.New_Line;
 
                     when others => null;
