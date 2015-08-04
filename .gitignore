@@ -2,3 +2,4 @@ parser
 *.ali
 *.o
 tls-parameters.xml
+tls-parameters.ads
