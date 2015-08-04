@@ -8,10 +8,9 @@ is
     is
         Value : TLS.Types.uint16;
     begin
-        --  FIXME: Value make no sense. Invalid byte order?
         TLS.Types.uint16'Read (Stream, Value);
         begin
-            Item := CipherSuite'Val (Value);
+            Item := CipherSuite'Enum_Val (Value);
         exception
             when Constraint_Error => Item := INVALID;
         end;
