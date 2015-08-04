@@ -103,7 +103,7 @@ package body TLS.Messages.Debug is
 	                    Ada.Text_IO.Put      ("      Session ID: ");
                         Dump (Data.ct_handshake.ht_client_hello.ch_session_id);
 	                    Ada.Text_IO.New_Line;
-	                    Ada.Text_IO.Put      ("      Ciphers: ");
+	                    Ada.Text_IO.Put_Line ("      Ciphers: ");
                         Dump (Data.ct_handshake.ht_client_hello.ch_cipher_suites);
 	                    Ada.Text_IO.New_Line;
 
