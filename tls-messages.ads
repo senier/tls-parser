@@ -10,6 +10,8 @@ is
     --  shield from invalid values (make every undefined value
     --  result in the Invalid element)
 
+    --  FIXME: Correct casing
+
     type ContentType is
         (ct_change_cipher_spec,
          ct_alert,

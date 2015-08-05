@@ -1,0 +1,23 @@
+[2015-08-05]     
+
+* Issue
+
+Extensions in Client Hello are not represented as the (Length,Data) format of
+the variable-length arrays used elsewhere in RFC5246. Instead the presence of
+Extensions is signaled by the fact that there are still bytes over in
+ClientHello after reading in its other elements.
+
+This is impossible to implement as pure 'Read operation, as there is no way to
+pass the overall length of the packet determined in the 'Read operation of the
+Handshake message down to the 'Read operation of its component of type
+ClientHello.  Also, a custom 'Read operation for ClientHello would need to
+collect the lengths of the other (non-Extension) components and pass the
+remaining bytes down to the 'Read operation of the Extensions element to
+determine whether there is space for Extensions.
+
+* Idea
+
+Only use 'Read attribute for basic types. For composite types implement an
+analogous operation that manually constructs the objects by calling a custom
+read operation on all components. These operations would could have a parameter
+to pass in the remaining bytes.
