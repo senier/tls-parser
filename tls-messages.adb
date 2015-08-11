@@ -28,4 +28,21 @@ is
         end;
     end Read_CompressionMethod;
 
+    procedure Read_TLSPlaintext
+        (Stream : not null access Ada.Streams.Root_Stream_Type'Class;
+         Item   : out TLSPlaintext)
+    is
+        CT     : constant ContentType := ContentType'Input (Stream);
+        Result : TLSPlaintext (CT);
+    begin
+        ProtocolVersion'Read (Stream, Result.Version);
+        TLS.Types.uint16'Read (Stream, Result.Length);
+
+        case CT is
+            when ct_handshake => Handshake'Read (Stream, Result.ct_handshake);
+            when others       => null;
+        end case;
+        Item := Result;
+    end Read_TLSPlaintext;
+
 end TLS.Messages;

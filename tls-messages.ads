@@ -188,6 +188,11 @@ is
         length  at 3 range 0 .. 15;
     end record;
 
+    procedure Read_TLSPlaintext
+        (Stream : not null access Ada.Streams.Root_Stream_Type'Class;
+         Item   : out TLSPlaintext);
+    for TLSPlaintext'Read use Read_TLSPlaintext;
+
     pragma Pack (TLSPlaintext);
 
 end TLS.Messages;

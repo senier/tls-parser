@@ -21,3 +21,6 @@ Only use 'Read attribute for basic types. For composite types implement an
 analogous operation that manually constructs the objects by calling a custom
 read operation on all components. These operations would could have a parameter
 to pass in the remaining bytes.
+
+For the top-level type (which has not length information anyway), use a custom
+'Read operation.
