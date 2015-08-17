@@ -41,6 +41,71 @@ is
     --  TLS 1.2
     version : constant ProtocolVersion := ProtocolVersion'(3, 3);
 
+    ----------------
+    --  Extension --
+    ----------------
+
+    type HashAlgorithm is (HA_None, HA_MD5, HA_SHA1, HA_SHA224, HA_SHA256, HA_SHA384, HA_SHA512, HA_Invalid);
+    for HashAlgorithm use
+        (HA_None    =>   0,
+         HA_MD5     =>   1,
+         HA_SHA1    =>   2,
+         HA_SHA224  =>   3,
+         HA_SHA256  =>   4,
+         HA_SHA384  =>   5,
+         HA_SHA512  =>   6,
+         HA_Invalid => 255);
+    for HashAlgorithm'Size use 8;
+
+    type SignatureAlgorithm is (SA_Anonymous, SA_RSA, SA_DSA, SA_ECDSA, SA_Invalid);
+    for SignatureAlgorithm use
+        (SA_Anonymous =>   0,
+         SA_RSA       =>   1,
+         SA_DSA       =>   2,
+         SA_ECDSA     =>   3,
+         SA_Invalid   => 255);
+    for SignatureAlgorithm'Size use 8;
+
+    type SignatureAndHashAlgorithm is
+    record
+        hash      : HashAlgorithm;
+        signature : SignatureAlgorithm;
+    end record;
+
+    type SignatureAndHashAlgorithmsList is array (TLS.Types.uint16 range <>) of SignatureAndHashAlgorithm;
+
+    type SignatureAndHashAlgorithms (Length : TLS.Types.uint16 := 0) is
+    record
+        supported_signature_algorithms : SignatureAndHashAlgorithmsList (1 .. Length);
+    end record;
+
+    --  FIXME: Add other extensions from [TLSEXT]
+    type ExtensionType is range 0 .. 2**16 - 1;
+    for ExtensionType'Size use 16;
+
+    ET_Signature_Algorithms : constant ExtensionType := 0;
+    ET_Invalid              : constant ExtensionType := 2**16 - 1;
+
+    type Extension (ET : ExtensionType := ET_Invalid) is
+    record
+        case ET is
+            when ET_Signature_Algorithms => supported_signature_algorithms : SignatureAndHashAlgorithms;
+            when others                  => null;
+        end case;
+    end record;
+
+    type ExtensionList is array (TLS.Types.uint16 range <>) of Extension;
+
+    type Extensions (Length : TLS.Types.uint16 := 0) is
+    record
+        Data : ExtensionList (1 .. Length);
+    end record;
+
+    procedure Read_Extensions
+        (Stream : not null access Ada.Streams.Root_Stream_Type'Class;
+         Item   : out Extensions);
+    for Extensions'Read use Read_Extensions;
+
     --------------------
     --  Client Hello  --
     --------------------
@@ -141,6 +206,7 @@ is
         case Msg_Type is
             when ht_hello_request       => null;
             when ht_client_hello        => ht_client_hello : ClientHello;
+                                           ht_extensions   : Extensions (10);
             when ht_server_hello        => null;
             when ht_certificate         => null;
             when ht_server_key_exchange => null;

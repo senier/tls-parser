@@ -41,4 +41,35 @@ is
         Item := Result;
     end Read_TLSPlaintext;
 
+    procedure Read_Extensions
+        (Stream : not null access Ada.Streams.Root_Stream_Type'Class;
+         Item   : out Extensions)
+    is
+        Length : constant TLS.Types.uint16 := TLS.Types.uint16'Input (Stream);
+        Result : Extensions (Length);
+        --  Index, Extension_Length : TLS.Types.UInt16;
+    begin
+        --  Ada.Text_IO.Put_Line ("Read_Extensions: " & Length'Img);
+
+        --  Index := Result.Data'First;
+        --  Ada.Text_IO.Put_Line ("Index: " & Index'Img);
+        --  while Length > 0
+        --  loop
+        --      declare
+        --          E : Extension := Extension'Input (Stream);
+        --      begin
+        --          case E.ET is
+        --              when ET_Signature_Algorithms => Extension_Length := E.supported_signature_algorithms.Length;
+        --              when others                  => Extension_Length := E.Unknown_Extension.Length;
+        --          end case;
+        --          Result.Data (Index) := E;
+        --      end;
+        --      Index := Index + 1;
+
+        --      exit when Length < Extension_Length;
+        --      Length := Length - Extension_Length;
+        --  end loop;
+        Item := Result;
+    end Read_Extensions;
+
 end TLS.Messages;
