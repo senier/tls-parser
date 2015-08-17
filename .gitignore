@@ -1,5 +1,9 @@
 parser
 *.ali
 *.o
+*.rep
+*.map
 tls-parameters.xml
 tls-parameters.ads
+b~*.ad?
+tdb

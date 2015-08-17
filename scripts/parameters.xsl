@@ -19,21 +19,21 @@
 </xsl:template>
 
 <xsl:template match="iana:registry[@id='tls-parameters-4']">
-    <xsl:text>   --  </xsl:text>
+    <xsl:text>    --  </xsl:text>
     <xsl:value-of select="iana:title"/>
     <xsl:text></xsl:text>
-    <xsl:text>   type CipherSuite is (</xsl:text>
+    <xsl:text>    type CipherSuite is (</xsl:text>
     <xsl:apply-templates select="iana:record[iana:description[substring(text(), 1, 4)='TLS_']]" mode="declaration"/>
     <xsl:text>       INVALID);</xsl:text>
     <xsl:text></xsl:text>
-    <xsl:text>   for CipherSuite use (</xsl:text>
+    <xsl:text>    for CipherSuite use (</xsl:text>
     <xsl:apply-templates select="iana:record[iana:description[substring(text(), 1, 4)='TLS_']]" mode="representation"/>
     <xsl:text>       INVALID => 16#FFFF#);</xsl:text>
-    <xsl:text>   for CipherSuite'Size use 16;</xsl:text>
-    <xsl:text>   procedure Read_CipherSuite</xsl:text>
+    <xsl:text>    for CipherSuite'Size use 16;</xsl:text>
+    <xsl:text>    procedure Read_CipherSuite</xsl:text>
     <xsl:text>       (Stream : not null access Ada.Streams.Root_Stream_Type'Class;</xsl:text>
     <xsl:text>        Item   : out CipherSuite);</xsl:text>
-    <xsl:text>   for CipherSuite'Read use Read_CipherSuite;</xsl:text>
+    <xsl:text>    for CipherSuite'Read use Read_CipherSuite;</xsl:text>
     <xsl:text></xsl:text>
 </xsl:template>
 

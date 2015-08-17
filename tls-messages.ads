@@ -1,16 +1,15 @@
-with System;
 with Ada.Streams;
 
 with TLS.Types;
 with TLS.Parameters;
 
+use type TLS.Types.uint16;
+
 package TLS.Messages
 is
-    --  FIXME: Implement custom 'Read operation for enumtypes to
-    --  shield from invalid values (make every undefined value
-    --  result in the Invalid element)
-
+    --  FIXME: Replace enums by numerals + constants
     --  FIXME: Correct casing
+    --  FIXME: Check all sizes at all levels
 
     type ContentType is
         (ct_change_cipher_spec,
@@ -55,11 +54,11 @@ is
 
     type CipherList is array (uint8_div_2 range <>) of TLS.Parameters.CipherSuite;
 
-    -- FIXME: Check whether length of 0 really leads to an empty list
+    --  FIXME: Check whether length of 0 really leads to an empty list
 
-    type CipherSuites (length : uint8_div_2 := uint8_div_2'Last) is
+    type CipherSuites (length : uint8_div_2 := 0) is
     record
-        cs_data : CipherList (1..length);
+        cs_data : CipherList (1 .. length);
     end record;
 
     type CompressionMethod is (CM_NULL, CM_DEFLATE, CM_INVALID);
@@ -78,7 +77,7 @@ is
 
     type CompressionMethods (length : TLS.Types.uint8 := 0) is
     record
-        cm_data : CompressionList (1..length);
+        cm_data : CompressionList (1 .. length);
     end record;
 
     for CipherSuites use
@@ -89,7 +88,7 @@ is
     type Random is
     record
         gmt_unix_time : TLS.Types.uint32;
-        random_bytes  : TLS.Types.Opaque8 (1..28);
+        random_bytes  : TLS.Types.Opaque8 (1 .. 28);
     end record;
 
     type ClientHello
@@ -134,10 +133,12 @@ is
     for HandshakeType'Size use 8;
 
     --  Handshake type
-    type Handshake (msg_type : HandshakeType := ht_invalid) is
+    type Handshake
+        (Msg_Type : HandshakeType := ht_invalid)
+    is
     record
         length : TLS.Types.uint24;
-        case msg_type is
+        case Msg_Type is
             when ht_hello_request       => null;
             when ht_client_hello        => ht_client_hello : ClientHello;
             when ht_server_hello        => null;
@@ -154,27 +155,24 @@ is
 
     for Handshake use
     record
-        msg_type at 0 range 0 ..  7;
-        length   at 1 range 0 .. 23;
+        Msg_type at 0 range 0 ..  7;
+        Length   at 1 range 0 .. 23;
     end record;
-
-    -------------------------
-    --  Change Cipher Spec --
-    -------------------------
 
     --------------------
     --  TLS Plaintext --
     --------------------
 
     type TLSPlaintext
-        (ctype  : ContentType := ct_invalid)
+        (ctype             : ContentType := ct_invalid)
     is
     record
-        version : ProtocolVersion;
-        length  : TLS.Types.uint16;
+        version   : ProtocolVersion;
+        length    : TLS.Types.uint16;
+
         case ctype is
             when ct_invalid            => null;
-            when ct_change_cipher_spec => null; --ct_change_cipher_spec : ChangeCipherSpec;
+            when ct_change_cipher_spec => null; --  ct_change_cipher_spec : ChangeCipherSpec;
             when ct_alert              => null;
             when ct_handshake          => ct_handshake          : Handshake;
             when ct_application_data   => null;

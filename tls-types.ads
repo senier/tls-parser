@@ -32,12 +32,12 @@ is
 
     type Vector16 (length : uint16 := 0) is
     record
-        data   : Opaque16 (1..length);
+        data   : Opaque16 (1 .. length);
     end record;
 
     for Vector16 use
     record
-        length at 0 range 0..15;
+        length at 0 range 0 .. 15;
     end record;
 
 end TLS.Types;
