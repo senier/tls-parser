@@ -3,6 +3,7 @@ parser
 *.o
 *.rep
 *.map
+*.su
 tls-parameters.xml
 tls-parameters.ads
 b~*.ad?

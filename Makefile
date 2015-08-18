@@ -58,7 +58,8 @@ GNATMAKE_ARGS += -gnatyM130
 all:: parser
 
 parser: *.ad?  tls-parameters.ads
-	gnatmake $(GNATMAKE_ARGS) $@
+	gnatmake $(GNATMAKE_ARGS) $@ -cargs -fstack-usage
+
 
 tls-parameters.ads: tls-parameters.xml
 
@@ -72,6 +73,6 @@ tls-parameters.ads: scripts/parameters.xsl tls-parameters.xml
 
 clean:
 	@gnatclean parser
-	@rm -f tls-parameters.ads tdb parser.map
+	@rm -f tls-parameters.ads tdb parser.map *.su
 
 .PHONY: clean all
