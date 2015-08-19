@@ -10,20 +10,6 @@ is
         Item := uint8_div_2 (length) / 2;
     end Read_uint8_div_2;
 
-    procedure Read_CompressionMethod
-        (Stream : not null access Ada.Streams.Root_Stream_Type'Class;
-         Item   : out CompressionMethod)
-    is
-        Value : TLS.Types.uint8;
-    begin
-        TLS.Types.uint8'Read (Stream, Value);
-        begin
-            Item := CompressionMethod'Enum_Val (Value);
-        exception
-            when Constraint_Error => Item := CM_INVALID;
-        end;
-    end Read_CompressionMethod;
-
     procedure Read_TLSPlaintext
         (Stream : not null access Ada.Streams.Root_Stream_Type'Class;
          Item   : out TLSPlaintext)

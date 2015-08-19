@@ -11,20 +11,14 @@ is
     --  FIXME: Correct casing
     --  FIXME: Check all sizes at all levels
 
-    type ContentType is
-        (ct_change_cipher_spec,
-         ct_alert,
-         ct_handshake,
-         ct_application_data,
-         ct_invalid);
-
-    for ContentType use
-        (ct_change_cipher_spec =>  20,
-         ct_alert              =>  21,
-         ct_handshake          =>  22,
-         ct_application_data   =>  23,
-         ct_invalid            => 255);
+    type ContentType is new TLS.Types.uint8;
     for ContentType'Size use 8;
+
+    ct_change_cipher_spec : constant ContentType :=  20;
+    ct_alert              : constant ContentType :=  21;
+    ct_handshake          : constant ContentType :=  22;
+    ct_application_data   : constant ContentType :=  23;
+    ct_invalid            : constant ContentType := 255;
 
     type ProtocolVersion is
     record
@@ -45,26 +39,26 @@ is
     --  Extension --
     ----------------
 
-    type HashAlgorithm is (HA_None, HA_MD5, HA_SHA1, HA_SHA224, HA_SHA256, HA_SHA384, HA_SHA512, HA_Invalid);
-    for HashAlgorithm use
-        (HA_None    =>   0,
-         HA_MD5     =>   1,
-         HA_SHA1    =>   2,
-         HA_SHA224  =>   3,
-         HA_SHA256  =>   4,
-         HA_SHA384  =>   5,
-         HA_SHA512  =>   6,
-         HA_Invalid => 255);
+    type HashAlgorithm is new TLS.Types.uint8;
     for HashAlgorithm'Size use 8;
 
-    type SignatureAlgorithm is (SA_Anonymous, SA_RSA, SA_DSA, SA_ECDSA, SA_Invalid);
-    for SignatureAlgorithm use
-        (SA_Anonymous =>   0,
-         SA_RSA       =>   1,
-         SA_DSA       =>   2,
-         SA_ECDSA     =>   3,
-         SA_Invalid   => 255);
+    HA_None    : constant HashAlgorithm :=   0;
+    HA_MD5     : constant HashAlgorithm :=   1;
+    HA_SHA1    : constant HashAlgorithm :=   2;
+    HA_SHA224  : constant HashAlgorithm :=   3;
+    HA_SHA256  : constant HashAlgorithm :=   4;
+    HA_SHA384  : constant HashAlgorithm :=   5;
+    HA_SHA512  : constant HashAlgorithm :=   6;
+    HA_Invalid : constant HashAlgorithm := 255;
+
+    type SignatureAlgorithm is new TLS.Types.uint8;
     for SignatureAlgorithm'Size use 8;
+
+    SA_Anonymous : constant SignatureAlgorithm :=   0;
+    SA_RSA       : constant SignatureAlgorithm :=   1;
+    SA_DSA       : constant SignatureAlgorithm :=   2;
+    SA_ECDSA     : constant SignatureAlgorithm :=   3;
+    SA_Invalid   : constant SignatureAlgorithm := 255;
 
     type SignatureAndHashAlgorithm is
     record
@@ -126,17 +120,12 @@ is
         cs_data : CipherList (1 .. length);
     end record;
 
-    type CompressionMethod is (CM_NULL, CM_DEFLATE, CM_INVALID);
-    for CompressionMethod use
-       (CM_NULL    =>   0,
-        CM_DEFLATE =>   1,
-        CM_INVALID => 255);
+    type CompressionMethod is new TLS.Types.uint8;
     for CompressionMethod'Size use 8;
 
-    procedure Read_CompressionMethod
-        (Stream : not null access Ada.Streams.Root_Stream_Type'Class;
-         Item   : out CompressionMethod);
-    for CompressionMethod'Read use Read_CompressionMethod;
+    CM_NULL    : constant CompressionMethod :=   0;
+    CM_DEFLATE : constant CompressionMethod :=   1;
+    CM_INVALID : constant CompressionMethod := 255;
 
     type CompressionList is array (TLS.Types.uint8 range <>) of CompressionMethod;
 
@@ -171,31 +160,19 @@ is
     --------------------------
 
     --  Handshake message type
-    type HandshakeType is
-        (ht_hello_request,
-         ht_client_hello,
-         ht_server_hello,
-         ht_certificate,
-         ht_server_key_exchange,
-         ht_certificate_request,
-         ht_server_hello_done,
-         ht_certificate_verify,
-         ht_client_key_exchange,
-         ht_finished,
-         ht_invalid);
-    for HandshakeType use
-        (ht_hello_request       =>   0,
-         ht_client_hello        =>   1,
-         ht_server_hello        =>   2,
-         ht_certificate         =>  11,
-         ht_server_key_exchange =>  12,
-         ht_certificate_request =>  13,
-         ht_server_hello_done   =>  14,
-         ht_certificate_verify  =>  15,
-         ht_client_key_exchange =>  16,
-         ht_finished            =>  20,
-         ht_invalid             => 255);
-    for HandshakeType'Size use 8;
+    type HandshakeType is new TLS.Types.uint8;
+
+    ht_hello_request       : constant HandshakeType :=   0;
+    ht_client_hello        : constant HandshakeType :=   1;
+    ht_server_hello        : constant HandshakeType :=   2;
+    ht_certificate         : constant HandshakeType :=  11;
+    ht_server_key_exchange : constant HandshakeType :=  12;
+    ht_certificate_request : constant HandshakeType :=  13;
+    ht_server_hello_done   : constant HandshakeType :=  14;
+    ht_certificate_verify  : constant HandshakeType :=  15;
+    ht_client_key_exchange : constant HandshakeType :=  16;
+    ht_finished            : constant HandshakeType :=  20;
+    ht_invalid             : constant HandshakeType := 255;
 
     --  Handshake type
     type Handshake
@@ -216,6 +193,7 @@ is
             when ht_client_key_exchange => null;
             when ht_finished            => null;
             when ht_invalid             => null;
+            when others                 => null;
         end case;
     end record;
 
@@ -242,6 +220,7 @@ is
             when ct_alert              => null;
             when ct_handshake          => ct_handshake          : Handshake;
             when ct_application_data   => null;
+            when others                => null;
         end case;
     end record;
 
