@@ -31,30 +31,30 @@ is
         (Stream : not null access Ada.Streams.Root_Stream_Type'Class;
          Item   : out Extensions)
     is
-        Length : constant TLS.Types.uint16 := TLS.Types.uint16'Input (Stream);
+        Length : TLS.Types.uint16 := TLS.Types.uint16'Input (Stream);
         Result : Extensions (Length);
-        --  Index, Extension_Length : TLS.Types.UInt16;
+        Index, Extension_Length : TLS.Types.uint16;
+
+        --  The 'type' and 'length' field of extensions have a size of 16 bit each, i.e. 4 bytes.
+        Extension_Header_Length : constant := 4;
     begin
-        --  Ada.Text_IO.Put_Line ("Read_Extensions: " & Length'Img);
+        Index := Result.Data'First;
+        while Length > 0
+        loop
+            declare
+                E : constant Extension := Extension'Input (Stream);
+            begin
+                case E.ET is
+                    when ET_Signature_Algorithms => Extension_Length := E.supported_signature_algorithms.Length;
+                    when others                  => Extension_Length := E.Unknown_Extension.Length;
+                end case;
+                Result.Data (Index) := E;
+            end;
+            Index := Index + 1;
 
-        --  Index := Result.Data'First;
-        --  Ada.Text_IO.Put_Line ("Index: " & Index'Img);
-        --  while Length > 0
-        --  loop
-        --      declare
-        --          E : Extension := Extension'Input (Stream);
-        --      begin
-        --          case E.ET is
-        --              when ET_Signature_Algorithms => Extension_Length := E.supported_signature_algorithms.Length;
-        --              when others                  => Extension_Length := E.Unknown_Extension.Length;
-        --          end case;
-        --          Result.Data (Index) := E;
-        --      end;
-        --      Index := Index + 1;
-
-        --      exit when Length < Extension_Length;
-        --      Length := Length - Extension_Length;
-        --  end loop;
+            exit when Index > Result.Data'Last or Length < Extension_Length;
+            Length := Length - Extension_Length - Extension_Header_Length;
+        end loop;
         Item := Result;
     end Read_Extensions;
 

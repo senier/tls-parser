@@ -68,29 +68,43 @@ is
 
     type SignatureAndHashAlgorithmsList is array (TLS.Types.uint16 range <>) of SignatureAndHashAlgorithm;
 
-    type SignatureAndHashAlgorithms (Length : TLS.Types.uint16 := 0) is
+    --  FIXME: Factor out maximum into config package
+    subtype Max_Signatures is TLS.Types.uint16 range 0 .. 100;
+    type SignatureAndHashAlgorithms (Length : Max_Signatures := 0) is
     record
         supported_signature_algorithms : SignatureAndHashAlgorithmsList (1 .. Length);
     end record;
 
     --  FIXME: Add other extensions from [TLSEXT]
-    type ExtensionType is range 0 .. 2**16 - 1;
-    for ExtensionType'Size use 16;
+    type ExtensionType is new TLS.Types.uint16;
 
     ET_Signature_Algorithms : constant ExtensionType := 0;
     ET_Invalid              : constant ExtensionType := 2**16 - 1;
+
+    subtype Max_Unknown_Extension is TLS.Types.uint16 range 0 .. 100;
+    type Unknown_Extension_Type (Length : Max_Unknown_Extension := 0) is
+    record
+        Data   : TLS.Types.Opaque16 (1 .. Length);
+    end record;
 
     type Extension (ET : ExtensionType := ET_Invalid) is
     record
         case ET is
             when ET_Signature_Algorithms => supported_signature_algorithms : SignatureAndHashAlgorithms;
-            when others                  => null;
+            when others                  => Unknown_Extension              : Unknown_Extension_Type;
         end case;
+    end record;
+
+    for Extension use
+    record
+        ET at 0 range 0 .. 16 - 1;
     end record;
 
     type ExtensionList is array (TLS.Types.uint16 range <>) of Extension;
 
-    type Extensions (Length : TLS.Types.uint16 := 0) is
+    --  FIXME: Factor out maximum into config package
+    subtype Max_Extensions is TLS.Types.uint16 range 0 .. 100;
+    type Extensions (Length : Max_Extensions := 0) is
     record
         Data : ExtensionList (1 .. Length);
     end record;
@@ -104,6 +118,7 @@ is
     --  Client Hello  --
     --------------------
 
+    --  Factor out to TLS.Types or get rid of it altogether
     type uint8_div_2 is new TLS.Types.uint8;
 
     procedure Read_uint8_div_2
@@ -183,7 +198,7 @@ is
         case Msg_Type is
             when ht_hello_request       => null;
             when ht_client_hello        => ht_client_hello : ClientHello;
-                                           ht_extensions   : Extensions (10);
+                                           ht_extensions   : Extensions;
             when ht_server_hello        => null;
             when ht_certificate         => null;
             when ht_server_key_exchange => null;
@@ -207,8 +222,7 @@ is
     --  TLS Plaintext --
     --------------------
 
-    type TLSPlaintext
-        (ctype             : ContentType := ct_invalid)
+    type TLSPlaintext (ctype : ContentType := ct_invalid)
     is
     record
         version   : ProtocolVersion;
@@ -218,7 +232,7 @@ is
             when ct_invalid            => null;
             when ct_change_cipher_spec => null; --  ct_change_cipher_spec : ChangeCipherSpec;
             when ct_alert              => null;
-            when ct_handshake          => ct_handshake          : Handshake;
+            when ct_handshake          => ct_handshake : Handshake;
             when ct_application_data   => null;
             when others                => null;
         end case;
@@ -235,7 +249,5 @@ is
         (Stream : not null access Ada.Streams.Root_Stream_Type'Class;
          Item   : out TLSPlaintext);
     for TLSPlaintext'Read use Read_TLSPlaintext;
-
-    pragma Pack (TLSPlaintext);
 
 end TLS.Messages;
